@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["informatter <nicholas.rawitscher@gmail.com>"]
+readme = "README.md"
+
+[tool.pyright]
+exclude = [
+    "**/__pycache__",
+    "**/.ruff_cache/",
+    "**/.vscode/"
+]
+
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".github",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "venv",
+    "__pycache__"
+]
+
+
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+llama-index = "^0.10.17"
+pydantic = "^2.6.3"
+uvicorn = "^0.27.1"
+pydantic-settings = "^2.2.1"
+python-dotenv = "^1.0.1"
+structlog = "^24.1.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pyright = "^1.1.353"
+ruff = "^0.3.1"
+pytest = "^8.0.2"
+bandit = "^1.7.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

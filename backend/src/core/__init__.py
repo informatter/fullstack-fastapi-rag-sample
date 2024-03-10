@@ -42,7 +42,7 @@ def build_settings() -> Settings:
     if env == "local":
         env_file_path: str = find_dotenv(f".env.{env}")
         load_dotenv(dotenv_path=env_file_path)
-        return SettingsLocal() # pyright: ignore reportCallIssue
+        return SettingsLocal()  # pyright: ignore reportCallIssue
     else:
         # prod will not have an .env file.
         # environment variables will be defined directly in the node running the api

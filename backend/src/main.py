@@ -11,7 +11,6 @@ from uuid import uuid4
 from core.config import build_settings, Settings
 from core.logging import get_logger
 from schemas.errors import ErrorResponse
-
 from api.api_v1.api import api_router
 
 settings: Settings = build_settings()
@@ -103,7 +102,7 @@ async def process_requests(request: Request, call_next):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.origins,
+    allow_origins=settings.origins.split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

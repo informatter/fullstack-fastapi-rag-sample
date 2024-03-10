@@ -1,0 +1,11 @@
+**/.ruff_cache
+**/.vscode
+**/__pycache__/
+__pycache__
+.env*
+poetry.lock
+tests/
+.github/
+.venv/
+local_rag_data/
+local_rag_storage/

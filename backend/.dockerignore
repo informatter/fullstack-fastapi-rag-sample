@@ -1,0 +1,13 @@
+**/.ruff_cache
+**/.vscode
+**/__pycache__/
+__pycache__
+.env*
+.git*
+.gitignore
+.README
+tests/
+.github/
+.venv/
+tests
+scripts

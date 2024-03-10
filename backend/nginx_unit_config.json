@@ -1,0 +1,19 @@
+{
+    "listeners": {
+        "*:80": {
+            "pass": "applications/fastapi"
+        }
+    },
+
+    "applications": {
+        "fastapi": {
+            "type": "python 3.11",
+            "protocol": "asgi",
+            "path": "/app/src",
+            "home": "/app/.venv/",
+            "module": "main",
+            "callable": "app"
+        }
+    },
+    "access_log": "/dev/stderr"
+}

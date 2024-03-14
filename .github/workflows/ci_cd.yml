@@ -39,8 +39,8 @@ jobs:
         run: poetry --version
       - name: Install Poetry Dependencies
         run: |
-          poetry install
           cd backend
+          poetry install
           pwd
 
       #poetry shell

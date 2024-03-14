@@ -43,9 +43,9 @@ jobs:
           poetry install --only dev
       
       - name: Run Linting
+      #          poetry shell
         run: |
           cd backend
-          poetry shell
           poetry run ruff check .
           poetry run pyright .
           poetry run bandit -r .

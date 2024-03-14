@@ -52,6 +52,7 @@ jobs:
 
   # TODO only enable on pushes
   deploy_backend:
+    needs: lint_backend
     name: Deploy Backend
     runs-on: ubuntu-latest
     steps:

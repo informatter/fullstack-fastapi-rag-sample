@@ -97,6 +97,7 @@ jobs:
         REPOSITORY: sample-ai-rag-app
   #docker build -t rag-api:local -f backend.dockerfile . 
       run: |
+        ls -la
         docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 

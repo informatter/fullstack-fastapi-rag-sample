@@ -1,6 +1,5 @@
 
 name: Full Stack CI
-
 run-name: Triggered by ${{ github.actor }}
 on:
   push:
@@ -38,11 +37,17 @@ jobs:
       - name: Print Poetry Version
         run: poetry --version
       - name: Install Poetry Dependencies
-        run: ls -la
+        run: |
+          cd backend
+          poetry install
+      
+      - name: Run Linting
+        run: |
+          poetry shell
+          poetry run ruff check .
+          poetry run pyright .
+          poetry run bandit -r .
 
-        # cd backend
-        # poetry install
-        # pwd
       # - name: Run Flake8
       #   run: |
       #     flake8 backend/

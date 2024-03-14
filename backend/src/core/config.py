@@ -4,9 +4,9 @@ from functools import lru_cache
 import os
 from dotenv import load_dotenv, find_dotenv
 
-LOCAL_ENV_NAME='local'
-TEST_ENV_NAME='test'
-PROD_ENV_NAME='produciton'
+LOCAL_ENV_NAME = "local"
+TEST_ENV_NAME = "test"
+PROD_ENV_NAME = "produciton"
 
 ACCEPTED_ENVS: List[str] = [LOCAL_ENV_NAME, TEST_ENV_NAME, PROD_ENV_NAME]
 
@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     aws_secret_key: str
     aws_db_table_name: str
     openai_api_key: str
-    env:str
+    env: str
 
 
 class SettingsProd(Settings):

@@ -5,26 +5,27 @@ from llama_index.core import (
     StorageContext,
     load_index_from_storage,
 )
+from llama_index.core.indices.base import BaseIndex
 from llama_index.core.schema import Document
 from structlog.stdlib import BoundLogger
-from typing import Optional, Sequence
+from typing import List, Optional, Sequence
 from core.logging import get_logger
-from core.config import build_settings ,LOCAL_ENV_NAME,TEST_ENV_NAME
+from core.config import build_settings, LOCAL_ENV_NAME, TEST_ENV_NAME
 
 RAG_STORAGE_DIR_NAME = "local_rag_storage"
 logger: BoundLogger = get_logger()
 
 
-def index_builder() -> VectorStoreIndex | None:
+def index_builder() -> BaseIndex | None:
     settings = build_settings()
-    if settings.env == LOCAL_ENV_NAME or settings.env  == TEST_ENV_NAME: 
+    if settings.env == LOCAL_ENV_NAME or settings.env == TEST_ENV_NAME:
         return __local_index_builder()
     else:
         raise Exception("index builder is not implemented for prod envs")
 
 
 def __create_vector_store_index(
-    documents: Sequence[Document] | None,
+    documents: Sequence[Document],
 ) -> VectorStoreIndex | None:
     """Creates a vector store index from a collection of documents
     For more info see: https://docs.llamaindex.ai/en/stable/understanding/indexing/indexing.html
@@ -42,7 +43,7 @@ def __create_vector_store_index(
     return None
 
 
-def __local_index_builder() -> VectorStoreIndex | None:
+def __local_index_builder() -> Optional[VectorStoreIndex | BaseIndex]:
     """
     Creates a vector embeddings model from the documents, ready to be queried by an LLM.
     The embeddings will be cached to disk to avoid any extra to any 3rd party API's
@@ -59,21 +60,20 @@ def __local_index_builder() -> VectorStoreIndex | None:
 
     # Construct the path to the data folder
     data_folder_path = os.path.join(project_root, "local_rag_data")
-
-    # documents = SimpleDirectoryReader(data_folder_path).load_data()
-    index: VectorStoreIndex = None
+    # index:Optional[VectorStoreIndex] = None
 
     if not os.path.exists(rag_storage_dir_path):
         # load the documents and create the index
-        documents = SimpleDirectoryReader(data_folder_path).load_data()
+        documents: List[Document] = SimpleDirectoryReader(data_folder_path).load_data()
 
-        index: VectorStoreIndex | None = __create_vector_store_index(documents)
+        index: Optional[VectorStoreIndex] = __create_vector_store_index(documents)
         if index is None:
-            return
+            return None
+        index = VectorStoreIndex.from_documents(documents)
         # store it for later
         index.storage_context.persist(persist_dir=rag_storage_dir_path)
-    else:
-        # load the existing index
-        storage_context = StorageContext.from_defaults(persist_dir=rag_storage_dir_path)
-        index = load_index_from_storage(storage_context)
-    return index
+        return index
+
+    # load the existing index
+    storage_context = StorageContext.from_defaults(persist_dir=rag_storage_dir_path)
+    return load_index_from_storage(storage_context)

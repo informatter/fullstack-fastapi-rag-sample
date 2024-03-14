@@ -1,8 +1,5 @@
-from typing import Optional
 from fastapi import APIRouter, HTTPException
-from llama_index.core import VectorStoreIndex
 from core.index_builder import index_builder
-from llama_index.core.indices.base import BaseIndex
 
 router = APIRouter()
 

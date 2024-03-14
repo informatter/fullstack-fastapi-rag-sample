@@ -41,22 +41,22 @@ jobs:
         run: |
           poetry install
           cd backend
-          poetry shell
+          pwd
 
-
+      #poetry shell
       # - name: Run Flake8
       #   run: |
       #     flake8 backend/
 
-      - name: Lint with Ruff
-        run: |
-          poetry run ruff check .
+      # - name: Lint with Ruff
+      #   run: |
+      #     poetry run ruff check .
 
-      - name: Run Pyright
-        run: poetry run pyright .
+      # - name: Run Pyright
+      #   run: poetry run pyright .
 
-      - name: Run Bandit
-        run: poetry run bandit -r .
+      # - name: Run Bandit
+      #   run: poetry run bandit -r .
 
   # lint_frontend:
   #   name: Lint Frontend

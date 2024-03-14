@@ -37,15 +37,14 @@ jobs:
       - name: Print Poetry Version
         run: poetry --version
       - name: Install Poetry Dependencies
+      #poetry install
         run: |
-          ls -la .
           cd backend
-          ls -la .
-          poetry install
+          poetry install --only dev
       
       - name: Run Linting
         run: |
-          ls -la .
+          cd backend
           poetry shell
           poetry run ruff check .
           poetry run pyright .

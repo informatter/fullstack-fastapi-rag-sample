@@ -38,12 +38,11 @@ jobs:
       - name: Print Poetry Version
         run: poetry --version
       - name: Install Poetry Dependencies
-        run: |
-          cd backend
-          poetry install
-          pwd
+        run: ls -la
 
-      #poetry shell
+        # cd backend
+        # poetry install
+        # pwd
       # - name: Run Flake8
       #   run: |
       #     flake8 backend/

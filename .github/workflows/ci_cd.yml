@@ -45,61 +45,99 @@ jobs:
           poetry install
       
       - name: Run Linting
+        id: backend_linting_step
         run: |
           poetry run ruff check .
           poetry run pyright .
           poetry run bandit -r .
 
-  # TODO only enable on pushes
-  deploy_backend:
-    needs: lint_backend
-    name: Deploy Backend
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        #sets the working directory to the backend dir for all the lint_backend job
-        working-directory: ./backend
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Extract Current Branch Name
+        id: extract_branch_name
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+            echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
+          elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
+          else
+            echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
+          fi
+        
+    
+      - name: Configure AWS credentials
+        if: ${{ steps.backend_linting_step.outcome == 'success' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        # Change to use GitHub's OIDC provider which uses JWTs instead of IAM credentials see: https://github.com/aws-actions/configure-aws-credentials
+        with:
+          #arn:aws:iam::690171060599:user/github-actions-image-push
+        #role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:user/github-actions-image-push
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+  
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build, tag, and push docker image to Amazon ECR
+        env:
+          IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: sample-ai-rag-app
+                        #docker build -t rag-api:local -f backend.dockerfile . 
+        run: |
+          ls -la
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
-    - name: Branch used
-      id: extract_branch_name
-      run: |
-        if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
-          echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
-        elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-          echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
-        else
-          echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
-        fi
+  # TODO only enable on pushes
+  # deploy_backend:
+  #   needs: lint_backend
+  #   name: Deploy Backend
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       #sets the working directory to the backend dir for all the lint_backend job
+  #       working-directory: ./backend
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+
+  #   - name: Branch used
+  #     id: extract_branch_name
+  #     run: |
+  #       if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+  #         echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
+  #       elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+  #         echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
+  #       else
+  #         echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
+  #       fi
     
 
 
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      # Change to use GitHub's OIDC provider which uses JWTs instead of IAM credentials see: https://github.com/aws-actions/configure-aws-credentials
-      with:
-        #arn:aws:iam::690171060599:user/github-actions-image-push
-      #role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:user/github-actions-image-push
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v1
+  #     # Change to use GitHub's OIDC provider which uses JWTs instead of IAM credentials see: https://github.com/aws-actions/configure-aws-credentials
+  #     with:
+  #       #arn:aws:iam::690171060599:user/github-actions-image-push
+  #     #role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:user/github-actions-image-push
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #       aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
-    - name: Build, tag, and push docker image to Amazon ECR
-      env:
-        IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
-        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPOSITORY: sample-ai-rag-app
-  #docker build -t rag-api:local -f backend.dockerfile . 
-      run: |
-        ls -la
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
-        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+  #   - name: Login to Amazon ECR
+  #     id: login-ecr
+  #     uses: aws-actions/amazon-ecr-login@v2
+  #   - name: Build, tag, and push docker image to Amazon ECR
+  #     env:
+  #       IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
+  #       REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #       REPOSITORY: sample-ai-rag-app
+  # #docker build -t rag-api:local -f backend.dockerfile . 
+  #     run: |
+  #       ls -la
+  #       docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
+  #       docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
     
   # TODO

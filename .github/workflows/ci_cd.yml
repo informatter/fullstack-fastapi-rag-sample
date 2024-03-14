@@ -1,5 +1,6 @@
 
-name: Full Stack CI
+name: Full Stack CI/CD Pipeline
+# TODO run unit tests when available
 run-name: Triggered by ${{ github.actor }}
 on:
   push:
@@ -18,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
+        #sets the working directory to the backend dir for all the lint_backend job
         working-directory: ./backend
     steps:
       - name: Checkout Repository
@@ -32,8 +34,6 @@ jobs:
         run: python --version
 
       - name: Install Poetry
-
-        #poetry config virtualenvs.create false
         run: |
           ls -la .
           pip install poetry
@@ -41,32 +41,17 @@ jobs:
       - name: Print Poetry Version
         run: poetry --version
       - name: Install Poetry Dependencies
-      # poetry install --only dev -> causes ruff check to fail because of missing imports
         run: |
-
           poetry install
       
       - name: Run Linting
-      #          poetry shell -> creates error
         run: |
           poetry run ruff check .
           poetry run pyright .
           poetry run bandit -r .
 
-      # - name: Run Flake8
-      #   run: |
-      #     flake8 backend/
-
-      # - name: Lint with Ruff
-      #   run: |
-      #     poetry run ruff check .
-
-      # - name: Run Pyright
-      #   run: poetry run pyright .
-
-      # - name: Run Bandit
-      #   run: poetry run bandit -r .
-
+    
+  # TODO
   # lint_frontend:
   #   name: Lint Frontend
   #   runs-on: ubuntu-latest

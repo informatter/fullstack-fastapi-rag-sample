@@ -16,6 +16,9 @@ jobs:
   lint_backend:
     name: Lint Backend
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,20 +35,21 @@ jobs:
 
         #poetry config virtualenvs.create false
         run: |
+          ls -la .
           pip install poetry
           
       - name: Print Poetry Version
         run: poetry --version
       - name: Install Poetry Dependencies
-      #poetry install
+      #poetry install cd backend
         run: |
-          cd backend
+
           poetry install --only dev
       
       - name: Run Linting
-      #          poetry shell
+      #          poetry shell -> creates error
         run: |
-          cd backend
+
           poetry run ruff check .
           poetry run pyright .
           poetry run bandit -r .

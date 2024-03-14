@@ -55,6 +55,10 @@ jobs:
     needs: lint_backend
     name: Deploy Backend
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        #sets the working directory to the backend dir for all the lint_backend job
+        working-directory: ./backend
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -91,10 +95,9 @@ jobs:
         IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         REPOSITORY: sample-ai-rag-app
-  #826e66d73aeef3064cec89d57fe927b3907720ac, develop
-  #690171060599.dkr.ecr.us-east-2.amazonaws.com/maria-ai-hub:develop
+  #docker build -t rag-api:local -f backend.dockerfile . 
       run: |
-        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
     

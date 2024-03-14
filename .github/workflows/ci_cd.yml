@@ -41,15 +41,14 @@ jobs:
       - name: Print Poetry Version
         run: poetry --version
       - name: Install Poetry Dependencies
-      #poetry install cd backend
+      # poetry install --only dev -> causes ruff check to fail because of missing imports
         run: |
 
-          poetry install --only dev
+          poetry install
       
       - name: Run Linting
       #          poetry shell -> creates error
         run: |
-
           poetry run ruff check .
           poetry run pyright .
           poetry run bandit -r .

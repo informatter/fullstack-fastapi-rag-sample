@@ -48,11 +48,12 @@ jobs:
           pipx install poetry==${{ env.POETRY_VERSION }}
           poetry --version
 
-      #- name: Set up Python  ${{ env.PYTHON_VERSION }}
-      - uses: actions/setup-python@v5
+      - name: Set up Python  ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'poetry' # caching pip dependencies
+          cache: 'poetry' # caching poetry dependencies
+
       - name: Install Dependencies
         run: poetry install --no-root
       # - run: |
@@ -141,8 +142,10 @@ jobs:
       uses: actions/checkout@v3
     # - name: Print Poetry Version
     #   run: poetry --version # command will fail because its not currently installed
-    - name: ls la
-      run: ls -la
+    - name: Check Directory Contents
+      run: |
+        ls -la
+        poetry --version
     - name: Branch used 
       id: extract_branch_name
       run: |
@@ -153,11 +156,8 @@ jobs:
         else
           echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
         fi
-    
-
 
     - name: Configure AWS credentials
-      if: ${{ steps.backend_linting_step.outcome == 'success' }}
       uses: aws-actions/configure-aws-credentials@v4
       # Change to use GitHub's OIDC provider which uses JWTs instead of IAM credentials see: https://github.com/aws-actions/configure-aws-credentials
       with:

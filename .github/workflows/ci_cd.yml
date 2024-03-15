@@ -126,10 +126,10 @@ jobs:
         #sets the working directory to the backend dir for all the lint_backend job
         working-directory: ./backend
     steps:
-    - name: Print Poetry Version
-      run: poetry --version
     - name: Checkout
       uses: actions/checkout@v3
+    - name: Print Poetry Version
+      run: poetry --version
 
     - name: Branch used
       id: extract_branch_name

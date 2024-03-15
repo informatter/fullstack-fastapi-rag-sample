@@ -26,8 +26,8 @@ jobs:
         #sets the working directory to the backend dir for all the lint_backend job
         working-directory: ./backend
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      #- name: Checkout Repository
+      - uses: actions/checkout@v4
 
 
 
@@ -46,11 +46,11 @@ jobs:
       - name: Install poetry
         run: pipx install poetry==${{ env.POETRY_VERSION }}
 
-      - name: Set up Python  ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
+      #- name: Set up Python  ${{ env.PYTHON_VERSION }}
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          #cache: 'poetry' # caching pip dependencies
+          cache: 'poetry' # caching pip dependencies
       - run: |
           poetry --version
           poetry install --no-root
@@ -128,10 +128,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: Print Poetry Version
-      run: poetry --version
-
-    - name: Branch used
+    # - name: Print Poetry Version
+    #   run: poetry --version # command will fail because its not currently installed
+    - name: ls la
+      run: ls -la
+    - name: Branch used 
       id: extract_branch_name
       run: |
         if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then

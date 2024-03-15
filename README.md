@@ -5,9 +5,10 @@
 
 # Sample Retrieval Augmented Generation (RAG) Full Stack Application 🤖 🦙
 
+⚠️ Currently in the process of getting built 🛠️
 
-
-⚠️ This repo is currently in the process of getting built
+This repo will be a full stack application which uses RAG for an AI agent to have domain specific knowledge. It currently uses the OpenAI API, but the goal is to have the functionality
+to swap it for open source models which can be self hosted. 
 
 ### Tech stack:
 **backend**

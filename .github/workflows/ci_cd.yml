@@ -118,6 +118,9 @@ jobs:
     needs: lint_backend
     name: Deploy Backend
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      #contents: read
     defaults:
       run:
         #sets the working directory to the backend dir for all the lint_backend job

@@ -18,8 +18,8 @@ to swap it for open source models which can be self hosted.
 
 **tooling**
 - auto formatting and linting : [Ruff](https://github.com/astral-sh/ruff)
-- data validation :  [pydantic] (https://github.com/pydantic/pydantic)
-- static type checking :  [pydantic] (https://github.com/microsoft/pyright)
+- data validation :  [pydantic](https://github.com/pydantic/pydantic)
+- static type checking :  [pydantic](https://github.com/microsoft/pyright)
 - logging: [structlog](https://github.com/hynek/structlog)
 - security: [bandit](https://github.com/openstack/bandit)
 - testing : [pytest](https://github.com/pytest-dev/pytest)

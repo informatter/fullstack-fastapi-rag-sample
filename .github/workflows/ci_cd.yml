@@ -40,7 +40,7 @@ jobs:
           cache: 'poetry' # caching poetry dependencies note: poetry.lock file needs to be present before running poetry install. i.e do not ignore it in the .gitignore file
 
       - name: Install Dependencies
-        run: poetry install --without dev --no-root      
+        run: poetry install      
       - name: Run Linting
         id: backend_linting_step
         run: |
@@ -79,10 +79,7 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-      #arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:user/github-actions-image-push
         role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
-        # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Login to Amazon ECR

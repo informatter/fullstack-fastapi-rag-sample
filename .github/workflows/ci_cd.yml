@@ -62,9 +62,7 @@ jobs:
         working-directory: ./backend
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
-    # - name: Print Poetry Version
-    #   run: poetry --version # command will fail because its not currently installed
+      uses: actions/checkout@v4
     - name: Check Directory Contents
       run: ls -la
     - name: Branch used 
@@ -80,7 +78,6 @@ jobs:
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
-      # Change to use GitHub's OIDC provider which uses JWTs instead of IAM credentials see: https://github.com/aws-actions/configure-aws-credentials
       with:
       #arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:user/github-actions-image-push
         role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter

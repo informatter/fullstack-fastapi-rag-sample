@@ -54,8 +54,14 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'poetry' # caching pip dependencies
-      - run: |
-          pip install poetry==${{ env.POETRY_VERSION }}
+      # - run: |
+      #     pip install poetry==${{ env.POETRY_VERSION }}
+      #     poetry --version
+      #     poetry install --no-root
+
+      - name: Install poetry
+        run: |
+          pipx install poetry==${{ env.POETRY_VERSION }}
           poetry --version
           poetry install --no-root
 

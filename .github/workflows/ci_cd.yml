@@ -47,13 +47,14 @@ jobs:
         run: |
           pipx install poetry==${{ env.POETRY_VERSION }}
           poetry --version
-          poetry install --no-root
 
       #- name: Set up Python  ${{ env.PYTHON_VERSION }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'poetry' # caching pip dependencies
+      - name: Install Dependencies
+        run: poetry install --no-root
       # - run: |
       #     pip install poetry==${{ env.POETRY_VERSION }}
       #     poetry --version

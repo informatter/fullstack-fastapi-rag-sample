@@ -37,36 +37,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'poetry' # caching poetry dependencies
+          cache: 'poetry' # caching poetry dependencies note: poetry.lock file needs to be present before running poetry install. i.e do not ignore it in the .gitignore file
 
       - name: Install Dependencies
-        run: poetry install --without dev --no-root
-      # - run: |
-      #     pip install poetry==${{ env.POETRY_VERSION }}
-      #     poetry --version
-      #     poetry install --no-root
-
-      # - name: Install poetry
-      #   run: |
-      #     pipx install poetry==${{ env.POETRY_VERSION }}
-      #     poetry --version
-      #     poetry install --no-root
-
-
-      # - name: Display Python version
-      #   run: python --version
-
-      # - name: Install Poetry
-      #   run: |
-      #     ls -la .
-      #     pip install poetry
-          
-      # - name: Print Poetry Version
-      #   run: poetry --version
-      # - name: Install Poetry Dependencies
-      #   run: |
-      #     poetry install --no-root
-      
+        run: poetry install --without dev --no-root      
       - name: Run Linting
         id: backend_linting_step
         run: |
@@ -74,48 +48,9 @@ jobs:
           poetry run pyright .
           poetry run bandit -r .
 
-      # - name: Extract Current Branch Name
-      #   id: extract_branch_name
-      #   run: |
-      #     if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
-      #       echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
-      #     elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-      #       echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
-      #     else
-      #       echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
-      #     fi
-        
-    
-      # - name: Configure AWS credentials
-      #   if: ${{ steps.backend_linting_step.outcome == 'success' }}
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   # Change to use GitHub's OIDC provider which uses JWTs instead of IAM credentials see: https://github.com/aws-actions/configure-aws-credentials
-      #   with:
-      #     arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
-      #   #arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:user/github-actions-image-push
-      #     role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
-      #     # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: ${{ secrets.AWS_REGION }}
-  
-      # - name: Login to Amazon ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v2
-      # - name: Build And Push Image To AWS ECR
-      #   env:
-      #     IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
-      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     REPOSITORY: sample-ai-rag-app
-        
-
-      #   run: |
-      #     ls -la
-      #     docker build --tag $REGISTRY/$REPOSITORY:$IMAGE_TAG --file backend.dockerfile . 
-      #     docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-
-  # TODO only enable on pushes
   deploy_backend:
     needs: lint_backend
+    if: ${{github.event_name == 'push' }}
     name: Deploy Backend
     runs-on: ubuntu-latest
     permissions:

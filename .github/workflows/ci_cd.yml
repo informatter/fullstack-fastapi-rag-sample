@@ -43,11 +43,11 @@ jobs:
         #   - run: poetry run pytest
 
 
-      # - name: Install poetry
-      #   run: |
-      #     pipx install poetry==${{ env.POETRY_VERSION }}
-      #     poetry --version
-      #     poetry install --no-root
+      - name: Install poetry
+        run: |
+          pipx install poetry==${{ env.POETRY_VERSION }}
+          poetry --version
+          poetry install --no-root
 
       #- name: Set up Python  ${{ env.PYTHON_VERSION }}
       - uses: actions/setup-python@v5
@@ -59,11 +59,11 @@ jobs:
       #     poetry --version
       #     poetry install --no-root
 
-      - name: Install poetry
-        run: |
-          pipx install poetry==${{ env.POETRY_VERSION }}
-          poetry --version
-          poetry install --no-root
+      # - name: Install poetry
+      #   run: |
+      #     pipx install poetry==${{ env.POETRY_VERSION }}
+      #     poetry --version
+      #     poetry install --no-root
 
 
       # - name: Display Python version

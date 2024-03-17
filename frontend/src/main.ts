@@ -7,7 +7,9 @@ import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-
+import App from './App.vue'
+import router from './router'
+import { createAuth0 } from '@auth0/auth0-vue'
 
 const vuetify = createVuetify({
   components,
@@ -21,19 +23,24 @@ const vuetify = createVuetify({
           secondary: '#00b4d8',
           accent: '7209b7'
         }
-      },
-    },
-  },
+      }
+    }
+  }
 })
 
-import App from './App.vue'
-import router from './router'
-import { fa } from 'vuetify/locale'
+const auth0 = createAuth0({
+  domain: import.meta.env.VITE_AUTH0_DOMAIN,
+  clientId: import.meta.env.VITE_AUTH0_CLIENT_ID,
+  authorizationParams: {
+    redirect_uri: import.meta.env.VITE_AUTH0_CALLBACK_URL
+  }
+})
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
+app.use(auth0)
 app.use(vuetify)
 
 app.mount('#app')

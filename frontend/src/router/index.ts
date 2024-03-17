@@ -1,5 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { authGuard } from "@auth0/auth0-vue";
+
+// lazy load components
+const HomeView = () => import('../views/HomeView.vue');
+const AuthCallbackPage = () => import ('@/components/AuthCallbackPage.vue')
+const RagView = () => import ('@/views/RagView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,14 +14,17 @@ const router = createRouter({
       name: 'home',
       component: HomeView
     },
-    // {
-    //   path: '/about',
-    //   name: 'about',
-    //   // route level code-splitting
-    //   // this generates a separate chunk (About.[hash].js) for this route
-    //   // which is lazy-loaded when the route is visited.
-    //   //component: () => import('../views/AboutView.vue')
-    // }
+    {
+      path: '/callback',
+      name: 'callback',
+      component: AuthCallbackPage
+    },
+    {
+      path: '/app',
+      name: 'app',
+      component: RagView,
+      beforeEnter:authGuard
+    }
   ]
 })
 

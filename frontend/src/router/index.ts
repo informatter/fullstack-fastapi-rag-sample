@@ -1,10 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authGuard } from "@auth0/auth0-vue";
+import { authGuard } from '@auth0/auth0-vue'
 
 // lazy load components
-const HomeView = () => import('../views/HomeView.vue');
-const AuthCallbackPage = () => import ('@/components/AuthCallbackPage.vue')
-const RagView = () => import ('@/views/RagView.vue')
+const HomeView = () => import('../views/HomeView.vue')
+const AuthCallbackPage = () => import('@/components/AuthCallbackPage.vue')
+const RagView = () => import('@/views/RagView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,7 +23,7 @@ const router = createRouter({
       path: '/app',
       name: 'app',
       component: RagView,
-      beforeEnter:authGuard
+      beforeEnter: authGuard
     }
   ]
 })

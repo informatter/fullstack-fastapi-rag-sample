@@ -24,6 +24,8 @@ jobs:
             #sets the working directory to the frontend for this job
             working-directory: ./frontend
         steps:
+            - name: check dir
+              run: ls -la
             - name: Checkout Repository
               uses: actions/checkout@v4
 

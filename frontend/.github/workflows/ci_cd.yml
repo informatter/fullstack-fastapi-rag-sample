@@ -14,7 +14,6 @@ on:
 
 env:
     NODE_VERSION: "20"
-#dkr.ecr.us-east-2.amazonaws.com/sample-ai-rag-app
 
 jobs:
     linting_and_tests:

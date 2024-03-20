@@ -1,7 +1,8 @@
 [![Formatting with ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Type checking with pyright](https://microsoft.github.io/pyright/img/pyright_badge.svg)](https://microsoft.github.io/pyright/)
 [![Security checking with bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
-![develop](https://github.com/informatter/fullstack-fastapi-rag-sample/actions/workflows/ci_cd.yml/badge.svg?branch=develop)
+![Frontend](https://github.com/informatter/fullstack-fastapi-rag-sample/actions/workflows/frontend_ci_cd.yml/badge.svg?branch=develop)
+![Backend](https://github.com/informatter/fullstack-fastapi-rag-sample/actions/workflows/backend_ci_cd.yml/badge.svg?branch=develop)
 
 # Sample Retrieval Augmented Generation (RAG) Full Stack Application 🤖 🦙
 

@@ -7,12 +7,14 @@ on:
     branches:
       - master
       - develop
+    paths:
+      - "frontend/**" # Only run if only a UI file has changed
   # runs action on PRs to develop
   pull_request:
     branches:
       - develop
-    paths-ignore:
-      - "backend/**"
+    paths:
+      - "frontend/**" # Only run if only a UI file has changed
 
 env:
     NODE_VERSION: "20"

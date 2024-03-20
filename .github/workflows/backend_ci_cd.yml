@@ -93,7 +93,7 @@ jobs:
       env:
         IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        REPOSITORY: sample-ai-rag-app
+        REPOSITORY: sample-ai-rag-api
       run: |
         docker build --build-arg="POETRY_VERSION=${{env.POETRY_VERSION}}" -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG

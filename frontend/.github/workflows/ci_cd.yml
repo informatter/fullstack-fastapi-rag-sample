@@ -1,0 +1,86 @@
+name: Frontend CI/CD Pipeline
+# TODO run unit tests when available
+run-name: Triggered by ${{ github.actor }}
+on:
+  push:
+    # runs action on pushes to develop and master
+    branches:
+      - master
+      - develop
+  # runs action on PRs to develop
+  pull_request:
+    branches:
+      - develop
+
+env:
+    NODE_VERSION: "20"
+#dkr.ecr.us-east-2.amazonaws.com/sample-ai-rag-app
+
+jobs:
+    linting_and_tests:
+        name: Linting & Unit Testing Frontend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node ${{env.NODE_VERSION}}
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{env.NODE_VERSION}}
+                cache: 'npm'
+            
+            - name: Install Dependencies
+              run: npm install
+            
+            - name: Run Linting
+              run: |
+                npm run lint
+                npm run format-check
+
+            - name: Run Unit Tests
+              run: npm run test:unit
+
+        # TODO we need to store env variables needed by the image as secrets in GitHub secrets
+        # so they can be used when building the image
+    deploy:
+        needs: linting_and_tests
+        name: Deploy Frontend
+        runs-on: ubuntu-latest
+        permissions:
+          id-token: write
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            - name: Branch used 
+              id: extract_branch_name
+              run: |
+                if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+                  echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
+                elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+                  echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
+                else
+                  echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
+                fi
+
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
+                aws-region: ${{ secrets.AWS_REGION }}
+          
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+            - name: Build And Push Image to AWS ECR
+              env:
+                IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
+                REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                REPOSITORY: sample-ai-rag-app
+              run: |
+                docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f frontend.dockerfile . 
+                docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+# TODO Use this command instead of the current build one:
+#docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg VITE_API_SERVER_URL="$VITE_API_SERVER_URL" --build-arg VITE_AUTH0_CALLBACK_URL="$VITE_AUTH0_CALLBACK_URL" --build-arg VITE_AUTH0_DOMAIN="$VITE_AUTH0_DOMAIN" --build-arg VITE_AUTH0_CLIENT_ID="$VITE_AUTH0_CLIENT_ID" -f frontend.dockerfile . 

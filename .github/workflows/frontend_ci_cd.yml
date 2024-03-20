@@ -11,6 +11,8 @@ on:
   pull_request:
     branches:
       - develop
+    paths-ignore:
+      - "backend/**"
 
 env:
     NODE_VERSION: "20"
@@ -50,48 +52,49 @@ jobs:
 
         # TODO we need to store env variables needed by the image as secrets in GitHub secrets
         # so they can be used when building the image
-    # deploy:
-    #     needs: linting_and_tests
-    #     name: Deploy Frontend
-    #     runs-on: ubuntu-latest
-    #     permissions:
-    #       id-token: write
-    #     defaults:
-    #       run:
-    #         #sets the working directory to the frontend dir for this job
-    #         working-directory: ./frontend
+    deploy:
+        if: ${{github.event_name == 'push' }}
+        needs: linting_and_tests
+        name: Deploy Frontend
+        runs-on: ubuntu-latest
+        permissions:
+          id-token: write
+        defaults:
+          run:
+            #sets the working directory to the frontend dir for this job
+            working-directory: ./frontend
 
-    #     steps:
-    #         - name: Checkout Repository
-    #           uses: actions/checkout@v4
-    #         - name: Branch used 
-    #           id: extract_branch_name
-    #           run: |
-    #             if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
-    #               echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
-    #             elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-    #               echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
-    #             else
-    #               echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
-    #             fi
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+            - name: Branch used 
+              id: extract_branch_name
+              run: |
+                if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+                  echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
+                elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+                  echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
+                else
+                  echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
+                fi
 
-    #         - name: Configure AWS credentials
-    #           uses: aws-actions/configure-aws-credentials@v4
-    #           with:
-    #             role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
-    #             aws-region: ${{ secrets.AWS_REGION }}
+            - name: Configure AWS credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
+                aws-region: ${{ secrets.AWS_REGION }}
           
-    #         - name: Login to Amazon ECR
-    #           id: login-ecr
-    #           uses: aws-actions/amazon-ecr-login@v2
-    #         - name: Build And Push Image to AWS ECR
-    #           env:
-    #             IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
-    #             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #             REPOSITORY: sample-ai-rag-app
-    #           run: |
-    #             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f frontend.dockerfile . 
-    #             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2
+            - name: Build And Push Image to AWS ECR
+              env:
+                IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
+                REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                REPOSITORY: sample-ai-rag-app
+              run: |
+                docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f frontend.dockerfile . 
+                docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
 # TODO Use this command instead of the current build one:
 #docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg VITE_API_SERVER_URL="$VITE_API_SERVER_URL" --build-arg VITE_AUTH0_CALLBACK_URL="$VITE_AUTH0_CALLBACK_URL" --build-arg VITE_AUTH0_DOMAIN="$VITE_AUTH0_DOMAIN" --build-arg VITE_AUTH0_CLIENT_ID="$VITE_AUTH0_CLIENT_ID" -f frontend.dockerfile . 

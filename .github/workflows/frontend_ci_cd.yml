@@ -38,11 +38,11 @@ jobs:
             
             - name: Install Dependencies
               run: npm install
-            
+            - name: Check prettier version
+              run: npx prettier --version
             - name: Run Linting
               run: |
                 npm run lint
-                npx prettier --version
                 npm run format-check
 
             - name: Run Unit Tests

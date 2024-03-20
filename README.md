@@ -44,5 +44,7 @@ Auth0 will be used as the authentication service and JWTs will be used to authen
 
 
 ### Usage
-[backend](https://github.com/informatter/fullstack-fastapi-rag-sample/blob/develop/backend/README.md)
+[Backend](https://github.com/informatter/fullstack-fastapi-rag-sample/blob/develop/backend/README.md)
+
+[Frontend](https://github.com/informatter/fullstack-fastapi-rag-sample/blob/develop/frontend/README.md)
 

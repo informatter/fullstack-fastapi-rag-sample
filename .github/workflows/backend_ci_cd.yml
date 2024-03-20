@@ -1,0 +1,120 @@
+
+name: Backend CI/CD Pipeline
+# TODO run unit tests when available
+run-name: Triggered by ${{ github.actor }}
+on:
+  push:
+    # runs action on pushes to develop and master
+    branches:
+      - master
+      - develop
+    paths-ignore:
+      - "frontend/**"
+  # runs action on PRs to develop
+  pull_request:
+    branches:
+      - develop
+    paths-ignore:
+      - "frontend/**"
+
+env:
+  PYTHON_VERSION: "3.11.7"
+  POETRY_VERSION: "1.8.2"
+
+jobs:
+  lint_backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        #sets the working directory to the backend dir for all the lint_backend job
+        working-directory: ./backend
+    steps:
+      #- name: Checkout Repository
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: |
+          pipx install poetry==${{ env.POETRY_VERSION }}
+          poetry --version
+
+      - name: Set up Python  ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'poetry' # caching poetry dependencies note: poetry.lock file needs to be present before running poetry install. i.e do not ignore it in the .gitignore file
+
+      - name: Install Dependencies
+        run: poetry install      
+      - name: Run Linting
+        id: backend_linting_step
+        run: |
+          poetry run ruff check .
+          poetry run pyright .
+          poetry run bandit -r .
+
+  deploy_backend:
+    needs: lint_backend
+    if: ${{github.event_name == 'push' }}
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      #contents: read
+    defaults:
+      run:
+        #sets the working directory to the backend dir for all the lint_backend job
+        working-directory: ./backend
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Check Directory Contents
+      run: ls -la
+    - name: Branch used 
+      id: extract_branch_name
+      run: |
+        if [[ "${GITHUB_EVENT_NAME}" == "push" ]]; then
+          echo "::set-output name=branch::$(echo ${GITHUB_REF##*/})"
+        elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+          echo "::set-output name=branch::$(echo $GITHUB_BASE_REF)"
+        else
+          echo "::set-output name=branch::INVALID_EVENT_BRANCH_UNKNOWN"
+        fi
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/GithHubActionsInformatter
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    - name: Build And Push Image to AWS ECR
+      env:
+        IMAGE_TAG: ${{ steps.extract_branch_name.outputs.branch }}
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: sample-ai-rag-app
+      run: |
+        docker build --build-arg="POETRY_VERSION=${{env.POETRY_VERSION}}" -t $REGISTRY/$REPOSITORY:$IMAGE_TAG -f backend.dockerfile . 
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+
+    
+  # TODO
+  # lint_frontend:
+  #   name: Lint Frontend
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '16'
+
+  #     - name: Install Dependencies
+  #       run: npm install
+
+  #     - name: Run ESLint
+  #       run: |
+  #         npm run lint

@@ -24,10 +24,10 @@ jobs:
             #sets the working directory to the frontend for this job
             working-directory: ./frontend
         steps:
-            - name: check dir
-              run: ls -la
             - name: Checkout Repository
               uses: actions/checkout@v4
+            - name: Check Directory Contents
+              run: ls -la
 
             - name: Set up Node ${{env.NODE_VERSION}}
               uses: actions/setup-node@v4
